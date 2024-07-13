@@ -1,0 +1,20 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Ürün Ekle{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center  col-md-6">Ürün Ekle</h2>
+            <form class=" col-md-6" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" class="btn btn-primary d-block mx-auto">Ekle</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Alıcı Dashboard{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center;">Ürünler</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Marka</th>
+            <th>Model</th>
+            <th>Ağırlık</th>
+            <th>Kategori</th>
+            <th>Günlük Kira Parası</th>
+            <th>Satıcı</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Örnek bir tablo satırı. Gerçek veriler AJAX çağrısıyla doldurulacak. -->
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- jQuery ve DataTables eklentisini başlatmak için JavaScript kodu -->
+<script>
+    $(document).ready(function () {
+        // DataTables'i başlat
+        $('.table').DataTable({
+            processing: true,
+            serverSide: true,
+            paging: true,
+            searching: true,
+            ordering: true,
+            ajax: {
+                url: "{% url 'buyer_dashboard_ajax' %}", // Verilerin alınacağı endpoint'in URL'si
+                type: "GET",
+                data: function (d) {
+                    d.someAdditionalParam = 'value';
+                }
+            },
+            columnDefs: [
+                {
+                    targets: -1, // Son sütunu hedef alır
+                    orderable: false, // Sıralanabilirliği devre dışı bırakır
+                },
+                {
+                    targets: '_all',
+                    render: function (data, type, row, meta) {
+                        // Tüm hücreleri ortalamak için kullanılır
+                        return '<div style="text-align: center;">' + data + '</div>';
+                    }
+                }
+            ],
+            columns: [
+                { data: '0', name: 'brand' }, // Data ve name alanlarını doğru tanımlayın
+                { data: '1', name: 'model' },
+                { data: '2', name: 'weight' },
+                { data: '3', name: 'category' },
+                { data: '4', name: 'daily_rent_price' },
+                { data: '5', name: 'seller' },
+                { data: '6', name: 'actions' }
+            ],
+            "language": tableLanguage // Türkçe dil ayarları
+        });
+
+        // Kiralama bilgilerini hesapla
+        const rentalRows = document.querySelectorAll('.rental-info');
+
+        rentalRows.forEach(row => {
+            const startDate = new Date(row.dataset.startDate);
+            const endDate = new Date(row.dataset.endDate);
+            const dailyRentalPrice = parseFloat(row.closest('tr').querySelector('.daily-rental-price').innerText);
+
+            // Kiralama gün sayısını hesapla
+            const rentalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            // Toplam fiyatı hesapla
+            const totalPrice = rentalDays * dailyRentalPrice;
+
+            row.querySelector('.days').innerText = rentalDays;
+            row.querySelector('.total-price').innerText = totalPrice.toFixed(2);
+        });
+    });
+</script>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* DataTables sayfalama butonları stilini belirler */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.5em 1em;
+    }
+
+    /* DataTables arama kutusu stilini belirler */
+    .dataTables_wrapper .dataTables_filter input {
+        margin: 0.5em;
+    }
+
+    /* DataTables bilgi metni stilini belirler */
+    .dataTables_wrapper .dataTables_info {
+        margin-top: 1em;
+    }
+
+    /* DataTables sütun başlıklarını ortalar */
+    table.dataTable thead th {
+        text-align: center;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Rent Product{% endblock %}
+
+{% block content %}
+<h2>Rent {{ product.model }}</h2>
+<form id="rentalForm" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    
+    <div class="form-group">
+        <label>Daily Rental Price:</label>
+        <input type="text" id="dailyRentalPrice" value="{{ product.daily_rent_price }}" readonly class="form-control">
+    </div>
+    
+    <div class="form-group">
+        <label>Total Amount:</label>
+        <input type="text" id="totalPrice" readonly class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Rent</button>
+</form>
+
+<!-- JavaScript kodları -->
+<script>
+    // Formun gönderimini AJAX ile yapar
+    $('#rentalForm').on('submit', function(event) {
+        event.preventDefault(); // Formun normal submit edilmesini engeller
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest' // AJAX isteği olduğunu belirtiyoruz
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Başarılı durumda yapılacak işlemler
+                    alert('Kiralama başarılı!');
+                    location.href="/buyer_dashboard/"
+                } else {
+                    // Hatalı durumda yapılacak işlemler
+                    console.log(response.errors);
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                // AJAX çağrısında hata durumunda yapılacak işlemler
+                console.error('Hata:', errmsg);
+            }
+        });
+    });
+
+    // Bugünün tarihini alır
+    function getTodayDate() {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Aylar 0-11 arasında
+        const year = today.getFullYear();
+        return `${year}-${month}-${day}`;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Sayfa yüklendiğinde tarih alanlarını doldur
+        const startDateField = document.getElementById('id_start_date');
+        startDateField.value = getTodayDate(); // Start Date alanını bugünün tarihi ile doldur
+
+        const endDateField = document.getElementById('id_end_date');
+        endDateField.value = ''; // End Date alanını boş bırak
+
+        const dailyRentalPrice = parseFloat(document.getElementById('dailyRentalPrice').value);
+
+        // Toplam fiyatı günceller
+        function updateTotalPrice() {
+            const startDate = new Date(startDateField.value);
+            const endDate = new Date(endDateField.value);
+
+            if (startDate && endDate && !isNaN(startDate) && !isNaN(endDate)) {
+                const timeDifference = endDate - startDate;
+                const days = timeDifference / (1000 * 3600 * 24); // Gün farkını hesapla
+
+                if (days > 0) { // Gün sayısının sıfırdan büyük olması gerektiğini kontrol eder
+                    const totalPrice = dailyRentalPrice * days;
+                    document.getElementById('totalPrice').value = totalPrice.toFixed(2); // Toplam fiyatı güncelle
+                } else {
+                    document.getElementById('totalPrice').value = 0;
+                }
+            } else {
+                document.getElementById('totalPrice').value = 0;
+            }
+        }
+
+        // Tarihlerin geçerliliğini kontrol eder
+        function validateDates() {
+            const startDate = new Date(startDateField.value);
+            const endDate = new Date(endDateField.value);
+
+            const today = new Date(getTodayDate());
+
+            // Start Date'in bugünden eski olmaması
+            if (startDate < today) {
+                alert('Başlangıç tarihi geçmişte olamaz.');
+                startDateField.value = getTodayDate(); // Bugünün tarihini ayarla
+                return;
+            }
+
+            // End Date'in Start Date ile aynı olmaması
+            if (startDate.getTime() === endDate.getTime()) {
+                alert('Bitiş tarihi başlangıç tarihi ile aynı olamaz.');
+                endDateField.value = ''; // End date'i temizle
+                return;
+            }
+
+            // End Date'in Start Date'ten önce olmaması
+            if (endDate <= startDate) {
+                alert('Bitiş tarihi başlangıç tarihinden sonra olmalıdır.');
+                endDateField.value = ''; // End date'i temizle
+                return;
+            }
+
+            updateTotalPrice(); // Toplam fiyatı güncelle
+        }
+
+        // Tarih alanlarında değişiklik olduğunda validateDates fonksiyonunu çağırır
+        startDateField.addEventListener('change', validateDates);
+        endDateField.addEventListener('change', validateDates);
+    });
+</script>
+{% endblock %}

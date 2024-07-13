@@ -1,0 +1,12 @@
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://avnadmin:AVNS_xlUBsE2Ddm2v_AqR7u2@uavservice-uav-rent.e.aivencloud.com:23163/defaultdb?sslmode=require
+      - DEBUG=True
+    restart: always

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}İHA KİRALAMA{% endblock %}</title>
+
+    <!-- jQuery kütüphanesinin yüklenmesi -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables için gerekli CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <!-- DataTables için gerekli JavaScript -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <!-- Bootstrap CSS kütüphanesi -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Sayfa için özel stil ayarları -->
+    <style>
+        body {
+            padding-top: 50px;
+        }
+    </style>
+
+    <!-- Ekstra CSS dosyaları için blok -->
+    {% block extra_css %}
+    {% endblock %}
+</head>
+
+<body>
+    <!-- Sabit konumda bir navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <a class="navbar-brand" href="/">İHA KİRALAMA</a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar menüsü -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <!-- Kullanıcı oturum açmışsa -->
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <span class="navbar-text mr-3">Hoşgeldin, {{ user.username }}!</span> <!-- Kullanıcı adı gösterimi -->
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Çıkış Yap</a>
+                    <!-- Çıkış formu; kullanıcı çıkış yapma işlemini AJAX ile tetikler -->
+                    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </li>
+                {% else %}
+                <!-- Kullanıcı oturum açmamışsa -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Giriş</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'signup' %}">Kayıt Ol</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Ana içerik alanı -->
+    <div class="container">
+        <br>
+        
+        <!-- DataTables için Türkçe dil ayarları -->
+        <script>
+            const tableLanguage = {
+                "decimal": "",
+                "emptyTable": "Tabloda herhangi bir veri mevcut değil",
+                "info": "Gösterilen _START_ - _END_ arası, toplam _TOTAL_ kayıt",
+                "infoEmpty": "Gösterilen 0 kayıt",
+                "infoFiltered": "(toplam _MAX_ kayıt içinden filtrelenenler)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Göster _MENU_ kayıt",
+                "loadingRecords": "Yükleniyor...",
+                "processing": "İşleniyor...",
+                "search": "Ara:",
+                "zeroRecords": "Eşleşen kayıt bulunamadı",
+                "paginate": {
+                    "first": "İlk",
+                    "last": "Son",
+                    "next": "Sonraki",
+                    "previous": "Önceki"
+                },
+                "aria": {
+                    "sortAscending": ": artan sütun sıralamasını aktifleştir",
+                    "sortDescending": ": azalan sütun sıralamasını aktifleştir"
+                }
+            };
+        </script>
+        
+        <!-- İçerik bloklarının eklenmesi -->
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap ve Popper.js JavaScript kütüphanelerinin yüklenmesi -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- jQuery ve DataTables scriptlerinin sayfanın sonunda yüklenmesi -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+</body>
+
+</html>

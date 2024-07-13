@@ -1,0 +1,113 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Satıcı Dashboard{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center;">Ürünlerim</h2>
+
+<!-- Ürün ekleme butonunu içeren satır -->
+<div class="row">
+    <div class="col-10"></div>
+    <div class="col-2">
+        <!-- Ürün ekleme sayfasına yönlendiren buton -->
+        <a href="{% url 'add_product' %}" class="btn btn-primary">Ürün Ekle</a>
+    </div>
+</div>
+
+<!-- Ürünlerin listelendiği tablo -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Marka</th>
+            <th>Model</th>
+            <th>Ağırlık</th>
+            <th>Kategori</th>
+            <th>Günlük Kira Parası</th>
+            <th>Kiralanan Kişi</th>
+            <th>Kiralama Tarihleri</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Örnek boş satır -->
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        // DataTables'i başlat
+        $('.table').DataTable({
+            processing: true, // Veri işleme göstergesi
+            serverSide: true, // Sunucu tarafında veri işleme
+            paging: true, // Sayfalama aktif
+            searching: true, // Arama özelliği aktif
+            ordering: true, // Sıralama özelliği aktif
+            ajax: {
+                url: "{% url 'seller_dashboard_ajax' %}", // Veri kaynağının URL'si
+                type: "GET", // HTTP GET metodu ile istek yapılacak
+                data: function (d) {
+                    d.someAdditionalParam = 'value';
+                }
+            },
+            columnDefs: [
+                {
+                    targets: [-1,-2], // Son iki sütunu hedef alır
+                    orderable: false, // Sıralanabilirliği devre dışı bırakır
+                },
+                {
+                    targets: '_all', // Tüm sütunları hedef alır
+                    render: function (data, type, row, meta) {
+                        // Verileri ortalanmış bir div içinde görüntüler
+                        return '<div style="text-align: center;">' + data + '</div>';
+                    }
+                }
+            ],
+            columns: [
+                { data: 0, title: "Marka" },
+                { data: 1, title: "Model" },
+                { data: 2, title: "Ağırlık" },
+                { data: 3, title: "Kategori" },
+                { data: 4, title: "Günlük Kira" },
+                { data: 5, title: "Kiracı" },
+                { data: 6, title: "Kiralamalar" },
+                { data: 7, title: "İşlemler", orderable: false } // İşlemler sütunu sıralanamaz
+            ],
+            "language": tableLanguage // Türkçe dil ayarları
+        });
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* DataTables sayfalama butonları stilini belirler */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.5em 1em;
+    }
+
+    /* DataTables arama kutusu stilini belirler */
+    .dataTables_wrapper .dataTables_filter input {
+        margin: 0.5em;
+    }
+
+    /* DataTables bilgi metni stilini belirler */
+    .dataTables_wrapper .dataTables_info {
+        margin-top: 1em;
+    }
+
+    /* DataTables sütun başlıklarını ortalar */
+    table.dataTable thead th {
+        text-align: center;
+    }
+</style>
+{% endblock %}
